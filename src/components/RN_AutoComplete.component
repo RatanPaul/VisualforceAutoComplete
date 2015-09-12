@@ -1,0 +1,61 @@
+<apex:component controller="RN_AutoComplete">
+    <apex:attribute name="sObjectName" description="name of Sobject" type="String" required="true"/>
+    <apex:attribute name="sObjectFieldName" description="SObject Field Name" type="String" required="true"/>
+    <apex:attribute name="selectRecordId" description="id of selected record" type="Id" required="true"/>
+    <style>
+    .ui-autocomplete-loading { background: white url("/auraFW/resources/aura/images/spinner.gif") right center no-repeat; }
+    .ui-autocomplete {
+            max-height: 100px;
+            overflow-y: auto;
+            /* prevent horizontal scrollbar */
+            overflow-x: hidden;
+            /* add padding to account for vertical scrollbar */
+            padding-right: 20px;
+    }
+    </style>
+    <apex:stylesheet value="{!URLFOR($Resource.RN_AutoComplete, 'css/jquery-ui.min.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.RN_AutoComplete, 'js/jquery-1.10.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.RN_AutoComplete, 'js/jquery-ui.min.js')}"/>
+    
+    <apex:inputHidden id="inputHiddenId" value="{!selectRecordId}"/>
+    <input id="tags" class="rn-form-control" />
+    
+    <script>
+    var searchQuery;
+    $('#tags').autocomplete({
+            minLength: 2,
+            source: function(request, response) {
+            searchQuery = request.term.trim();
+            //here ratan is namespace. pls remove or use your org namespace
+            ratan.RN_AutoComplete.fetchSObjects("{!sObjectName}", "{!sObjectFieldName}", searchQuery, function(result, event){
+                    if(event.type == 'exception') {
+                    
+                    } else {
+                        response(result);
+                    }
+                }
+            );
+            },
+            focus: function( event, ui ) {
+                    $('#tags').val( ui.item.Name );
+                    return false;
+                    },
+            select: function( event, ui ) {
+                        $('#tags').val( ui.item.Name );
+                        $('input[id$=inputHiddenId]').val( ui.item.Id );
+                        return false;
+                    }
+         })
+         .data("ui-autocomplete" )._renderItem = function( ul, item ) {
+            var entry = "<a>" + item.Name;
+            entry = entry + "</a>";
+            var re = new RegExp('(' + searchQuery+ ')', 'gi');
+            entry = entry.replace(re, "<b>" + searchQuery+ "</b>");
+            return $( "<li></li>" )
+                .data( "ui-autocomplete-item", item )
+                .append( entry )
+                .appendTo( ul );                
+        };
+  </script>
+    
+</apex:component>

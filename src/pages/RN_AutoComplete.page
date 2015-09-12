@@ -1,0 +1,8 @@
+<apex:page controller="RN_AutoCompleteCtrl">
+    <apex:form id="frm">
+        <div style="width:200px">
+            <c:RN_AutoComplete sObjectName="Account" sObjectFieldName="Name" selectRecordId="{!selectedId}" />
+        </div>
+        <apex:commandButton action="{!save}" rerender="frm" value="Save"/>
+    </apex:form>
+</apex:page>
